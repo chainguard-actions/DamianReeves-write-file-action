@@ -1,0 +1,39 @@
+name: Test write-file overwrite mode
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Pre-create file with existing content
+        run: echo "old content" > /tmp/test-overwrite.txt
+
+      - id: action
+        uses: .
+        with:
+          path: /tmp/test-overwrite.txt
+          contents: "Hello, World!"
+          write-mode: overwrite
+
+      - name: Assert file contents
+        run: |
+          ACTUAL="$(cat /tmp/test-overwrite.txt)"
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" != "Hello, World!" ]; then
+            echo "FAIL: expected 'Hello, World!' but got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS: file contents match"
+
+      - name: Assert size output is non-empty
+        env:
+          SIZE: ${{ steps.action.outputs.size }}
+        run: |
+          echo "size: $SIZE"
+          if [ -z "$SIZE" ]; then
+            echo "FAIL: expected non-empty size output"
+            exit 1
+          fi
+          echo "PASS: size output is '$SIZE'"

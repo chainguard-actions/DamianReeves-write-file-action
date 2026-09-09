@@ -1,0 +1,40 @@
+name: Test write-file append mode
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Pre-create file with initial content
+        run: echo -n "First line" > /tmp/test-append.txt
+
+      - id: action
+        uses: .
+        with:
+          path: /tmp/test-append.txt
+          contents: " Second line"
+          write-mode: append
+
+      - name: Assert file contains both original and appended content
+        run: |
+          ACTUAL="$(cat /tmp/test-append.txt)"
+          echo "actual: $ACTUAL"
+          if echo "$ACTUAL" | grep -q "First line" && echo "$ACTUAL" | grep -q "Second line"; then
+            echo "PASS: file contains both original and appended content"
+          else
+            echo "FAIL: expected both 'First line' and 'Second line' in file"
+            exit 1
+          fi
+
+      - name: Assert size output is non-empty
+        env:
+          SIZE: ${{ steps.action.outputs.size }}
+        run: |
+          echo "size: $SIZE"
+          if [ -z "$SIZE" ]; then
+            echo "FAIL: expected non-empty size output"
+            exit 1
+          fi
+          echo "PASS: size output is '$SIZE'"

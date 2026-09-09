@@ -1,0 +1,54 @@
+name: Test write-file create new file with multiline content
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Ensure target file does not exist
+        run: rm -f /tmp/test-new-file.txt
+
+      - id: action
+        uses: .
+        with:
+          path: /tmp/test-new-file.txt
+          contents: |
+            line one
+            line two
+            line three
+          write-mode: overwrite
+
+      - name: Assert file was created
+        run: |
+          if [ ! -f /tmp/test-new-file.txt ]; then
+            echo "FAIL: expected file to be created but it does not exist"
+            exit 1
+          fi
+          echo "PASS: file exists"
+
+      - name: Assert file contains expected lines
+        run: |
+          ACTUAL="$(cat /tmp/test-new-file.txt)"
+          echo "actual:"
+          echo "$ACTUAL"
+          if echo "$ACTUAL" | grep -q "line one" && \
+             echo "$ACTUAL" | grep -q "line two" && \
+             echo "$ACTUAL" | grep -q "line three"; then
+            echo "PASS: all expected lines found"
+          else
+            echo "FAIL: not all expected lines found in file"
+            exit 1
+          fi
+
+      - name: Assert size output is non-empty
+        env:
+          SIZE: ${{ steps.action.outputs.size }}
+        run: |
+          echo "size: $SIZE"
+          if [ -z "$SIZE" ]; then
+            echo "FAIL: expected non-empty size output"
+            exit 1
+          fi
+          echo "PASS: size output is '$SIZE'"

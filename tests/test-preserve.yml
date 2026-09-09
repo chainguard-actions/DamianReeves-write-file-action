@@ -1,0 +1,56 @@
+name: Test write-file preserve mode
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Test 1: preserve mode on existing file — should NOT overwrite
+      - name: Pre-create file with existing content
+        run: echo -n "original content" > /tmp/test-preserve-existing.txt
+
+      - id: preserve-existing
+        uses: .
+        with:
+          path: /tmp/test-preserve-existing.txt
+          contents: "new content that should not appear"
+          write-mode: preserve
+
+      - name: Assert existing file was NOT overwritten
+        run: |
+          ACTUAL="$(cat /tmp/test-preserve-existing.txt)"
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" = "original content" ]; then
+            echo "PASS: existing file was preserved"
+          else
+            echo "FAIL: expected 'original content' but got '$ACTUAL'"
+            exit 1
+          fi
+
+      # Test 2: preserve mode on non-existing file — should create it
+      - name: Ensure target file does not exist
+        run: rm -f /tmp/test-preserve-new.txt
+
+      - id: preserve-new
+        uses: .
+        with:
+          path: /tmp/test-preserve-new.txt
+          contents: "created by preserve mode"
+          write-mode: preserve
+
+      - name: Assert new file was created
+        run: |
+          if [ ! -f /tmp/test-preserve-new.txt ]; then
+            echo "FAIL: expected file to be created but it does not exist"
+            exit 1
+          fi
+          ACTUAL="$(cat /tmp/test-preserve-new.txt)"
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" = "created by preserve mode" ]; then
+            echo "PASS: new file was created with correct content"
+          else
+            echo "FAIL: expected 'created by preserve mode' but got '$ACTUAL'"
+            exit 1
+          fi
