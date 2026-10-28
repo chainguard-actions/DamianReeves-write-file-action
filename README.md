@@ -6,9 +6,9 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 ## Versions
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v1.3 | [`v1.3`](https://github.com/chainguard-actions/DamianReeves-write-file-action/tree/v1.3) | [`6929a9a`](https://github.com/DamianReeves/write-file-action/commit/6929a9a6d1807689191dcc8bbe62b54d70a32b42) |
+| Version | Tag | Upstream commit | Hardening report |
+|---------|-----|-----------------|------------------|
+| v1.3 | [`v1.3`](https://github.com/chainguard-actions/DamianReeves-write-file-action/tree/v1.3) | [`6929a9a`](https://github.com/DamianReeves/write-file-action/commit/6929a9a6d1807689191dcc8bbe62b54d70a32b42) | [`HARDENING.md`](https://github.com/chainguard-actions/DamianReeves-write-file-action/blob/v1.3/HARDENING.md) |
 
 ## Privacy
 
